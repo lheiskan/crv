@@ -1,0 +1,15 @@
+{
+  "page_number": 1,
+  "invoice_number": null,
+  "service_date": null,
+  "company": "Unknown",
+  "vehicle_reg": null,
+  "odometer_km": null,
+  "total_amount": 365.0,
+  "vat_amount": null,
+  "items": [],
+  "raw_text": "Ret X\n%\nKÄTEISMAKSUKUITTI % 1\nHyrylän autolasipalvel Jan. p\nyrylän autolasipalvelu + 4411 ji\nKaunismäentie 3, 11120 Riihimäki | Viiteenne 4 ,\n\nLTI-509 |. 1859 “ ”\n\ntakuu lasille ja asennukselle 2 vuotta\n\nHonda CRV Se\nKoodi Tuote i Määrä Yks ALV % A-hinta — Ale% Yhteensä\n3983 tuulilasi G 1 25,5 285,00 285,00\nAGSV\n1 tuulilasin asennus 1 25,5 80,00 80,00\n\n(290,84+ALV 25,5% 74,16 = 365,00) Yhteensä EUR 365,00\n\n|\n\n365,00 |\n\nF11650921220096545 OKOYFIHH\n\nLoppusumma EUR\n\nHyrylän autolasipalvelu Puhelin: Y-tunnus: Y-2125520-5\n",
+  "confidence_score": 0.5,
+  "receipt_type": "unknown",
+  "source_file": "Scan_2025-09-02_12-22-58-147 (3).pdf"
+}

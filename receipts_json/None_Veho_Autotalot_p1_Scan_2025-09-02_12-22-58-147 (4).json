@@ -1,0 +1,15 @@
+{
+  "page_number": 1,
+  "invoice_number": "695028537",
+  "service_date": null,
+  "company": "Veho Autotalot",
+  "vehicle_reg": "LTI-509",
+  "odometer_km": null,
+  "total_amount": null,
+  "vat_amount": null,
+  "items": [],
+  "raw_text": "NAUTI MATKASTA N\nKATEISLASKU | Sivu: 1\nAsiakas: 1822750\nLaskun numero: 695028537 Kopio: 1\nHEISKANEN LAURI Päivämäärä: 13.1:2011 (1)\nLisätiedot: 0400887900\nRAJAMAENTIE 25 Viitteemme: LTI-509\n04200 KERAVA Toimituspäivä: 13.1.2011\nSUOMI Maksuehdot:\nEräpäivä:\nHuomautusaika: 7 pv\nViivästyskorko: Korkolain mukaan\nTyömääräysnumero: 425310 Korjauspvm: 13.1.2011\nRekisterino: LTI-509 Moottorino: K20A43015532\nMerkki ja malli: HONDA CR-V 2.01 ES AWD 5D A Valmistenumero: SHSRD88604U215513\nEnsirek.pvm: 14.5.2004 Tehdastyyppi: RD8864E26\nMittarilukema: 120621\nNimike/Työselite/Koodi Kpl A-hinta ALV 0% A-hinta Summa ALV ALV Summa *)\n0%\nMAARAAIKAISHUOLTO 120000 KM VALEIN\nJäähdytinneste kestää - 30 astetta.\nPaketti RD88120MH SRSSS SESS SSS SSS SSS SS SSS SSIS SS 008 s8SS0000N\nMAARAAIKAISHUOLTOTYOT 120.000 KM 1,00 156,03 191,92 156,03 35,89 191,92\nHO3\nJARRUNESTE DOT42 3,00 6,65 8,18 19,95 4,59 24,54\n0820399932HE\nAFT - Z1 (1L) AUTOMAATTIV.OLJY 3,00 15,97 19,64 47,90 11,02 58,92\n0826699902HE\n18MM ALUSLEVY 1,",
+  "confidence_score": 0.8,
+  "receipt_type": "service",
+  "source_file": "Scan_2025-09-02_12-22-58-147 (4).pdf"
+}

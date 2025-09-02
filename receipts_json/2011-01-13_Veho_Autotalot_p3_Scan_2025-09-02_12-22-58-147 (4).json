@@ -1,0 +1,15 @@
+{
+  "page_number": 3,
+  "invoice_number": "695028537",
+  "service_date": "2011-01-13",
+  "company": "Veho Autotalot",
+  "vehicle_reg": "LTI-509",
+  "odometer_km": null,
+  "total_amount": null,
+  "vat_amount": null,
+  "items": [],
+  "raw_text": "NAUTI MATKASTA\nKATEISLASKU Sivu: 3\nAsiakas: 1822750 Laskun numero: 695028537 Kopio: 1\nPäivämäärä: 13.1.2011 (1)\nHEISKANEN LAURI Lisätiedot: 0400887900\nN Viitteemme: LTI-509\nRAJAMAENTIE 25 Toimituspäivä: 13.1.2011\n04200 KERAVA Maksuehdot:\nSUOMI Eräpäivä:\nHuomautusaika: 7 pv\nViivästyskorko: Korkolain mukaan\nTyömääräysnumero: 425310 Korjauspvm: 13.1.2011\nRekisterino: LTI-509 Moottorino: K20A43015532\nMerkki ja malli: HONDA CR-V 2.01 ES AWD SD A Valmistenumero: SHSRD88604U215513\nEnsirek.pvm: 14.5.2004 Tehdastyyppi: RD8864E26\nMittarilukema: 120621\nNimike/Työselite/Koodi Kpl A-hinta ALV 0% — A-hinta SummaALv ALV Summa *)\n0%\nSiirretty 748,61\nMOOTTORIN VENTTIILIKOPPA HIEMAN VUOTAA MOOTTORI-OLJYA >>>\nSOITETTU JA SOVITTU TIIVISTEEN UUSINTA\nVENTTIILIKOPANTIIVISTE UUSINTA 1,00 33,11 40,72 33,11 7,61 40,72\nHO3\nPKG,HEAD COVER 1,00 17,19 21,14 17,19 3,95 21,14\n12341RTA000\nTyökokonaisuuden välisumma yhteensä 658,92 810,47\nTAKAJARRULEVYT + PALASARJA HUONOSSA KUNNOSSA >>> SOITETTU\nJA SOVITTU UUSINTA\nTAKA",
+  "confidence_score": 0.8,
+  "receipt_type": "service",
+  "source_file": "Scan_2025-09-02_12-22-58-147 (4).pdf"
+}

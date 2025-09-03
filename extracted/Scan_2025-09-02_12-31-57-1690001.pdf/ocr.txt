@@ -1,0 +1,82 @@
+e AUTOTALOT»
+
+KÄTEISLASKU
+Asiakas: 1822750
+Laskun numero:
+HEISKANEN LAURI Päivämäärä:
+N Viitteenne:
+RAJAMAENTIE 25 Viitteemme:
+04200 KERAVA Toimituspäivä:
+SUOMI Maksuehdot:
+Eräpäivä:
+Huomautusaika:
+Viivästyskorko:
+Työmääräysnumero: 147454 Korjauspvm:
+Työn valm.pvm: 15.5.2009
+Rekisterino: LTI-509 Moottorino:
+Merkki ja malli: HONDA CR-V 2.01 ES AWD 5DA Valmistenumero:
+Ensirek.pvm: 14.5.2004 Tehdastyyppi:
+Mittarilukema:
+Nimike/Työselite/Koodi Kpl A-hinta ALV 0%
+
+Sivu: 1
+
+66517163
+
+15.5.2009 (1)
+0400887900
+
+LTI-509
+
+15.5.2009
+
+7 pv
+Korkolain mukaan
+15.5.2009
+
+K20A43015532
+SHSRD88604U215513
+RD8864E26
+
+100745
+
+A-hinta Summa ALV
+0%
+
+ALV Summa *)
+
+= —-.—n111111s3233233r--CC-—
+
+OBD EI MENNYT LÄPI KATSASTUKSESTA
+
+HDS TESTERILLÄ TESTAUS 1,00 32,21 39,30 32,21 7,09 39,30
+PGM-FI
+ELD-YKSIKKÖ UUSINTA 1,00 30,95 37,76 30,95 6,81 37,76
+HO3
+DETECT UNIT ELECT 1,00 50,17 61,21 50,17 11,04 61,21
+38255S5A003
+Kiinteähintainen paketti OBD-TESTI OBD-TESTI, KATSASTUSTARKI
+OBD-TESTI 1,00 14,75 18,00 14,75 3,25 18,00
+MU1
+Työkokonaisuuden välisumma yhteensä 128,08 156,27
+OIK ETURENKAAN SIS VETONIVELEN SUOJAKUMI VUOTAA >>>
+UUSITAAN KIRISTYSPANTA
+OIKEA VETO-AKSELIN SISEMMÄN SUOJAKUMIN 1,00 23,21 28,32 23,21 5,11 28,32
+HO3
+PANTAS 1,00 9,13 11,14 9,13 2,01 11,14
+44329SV4305
+Työkokonaisuuden välisumma yhteensä 32,34 39,46
+lauri.heiskanen@iki.fi
+Työkokonaisuuden välisumma yhteensä 0,00 0,00
+PIENTARVIKKEET 6,57 1,45 8,02
+1 Verollinen 22 % Veron peruste: 167,01 +ALV 22,00 % 36,74 = 203,75
+Teitä palveli: HEINO JARKKO P. 010 569 3243
+Yhteensä: 203,75 EUR
+Veho Autotalot Oy Kutomotie Pankkiyhteys Puhelin Alv-tunniste
+Kutomotie 1 A Nordea 159630-6157 010 569 624 FI16333854
+00380 Helsinki Pohjola 500001-20212914 Kotipaikka Y-tunnus
+Veho Autotalot Oy Sampo 800014-70780512 Helsinki 1633385-4
+
+vehoweb@veho.fi
+
+www.veho.fi

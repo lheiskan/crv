@@ -1,0 +1,67 @@
+{
+  "final_data": {
+    "date": "2009-05-15",
+    "amount": 203.75,
+    "vat_amount": 36.74,
+    "invoice_number": "66517163",
+    "odometer_km": 100745,
+    "company": "Veho Autotalot Oy",
+    "work_description": [
+      "KATSASTUS",
+      "PIENTARVIKKEET"
+    ]
+  },
+  "processing_steps": [
+    {
+      "step_name": "ocr",
+      "step_number": 1,
+      "timestamp": "2025-09-03T20:28:16.700231",
+      "method": "tesseract",
+      "config": {
+        "language": "fin+eng",
+        "dpi": 300
+      },
+      "output": {
+        "text": "ZSBBVVRPVEFMT1TCuwoKS8OEVEVJU0xBU0tVCkFzaWFrYXM6IDE4MjI3NTAKTGFza3VuIG51bWVybzoKSEVJU0tBTkVOIExBVVJJIFDDpGl2w6Rtw6TDpHLDpDoKTiBWaWl0dGVlbm5lOgpSQUpBTUFFTlRJRSAyNSBWaWl0dGVlbW1lOgowNDIwMCBLRVJBVkEgVG9pbWl0dXNww6RpdsOkOgpTVU9NSSBNYWtzdWVoZG90OgpFcsOkcMOkaXbDpDoKSHVvbWF1dHVzYWlrYToKVmlpdsOkc3R5c2tvcmtvOgpUecO2bcOkw6Ryw6R5c251bWVybzogMTQ3NDU0IEtvcmphdXNwdm06ClR5w7ZuIHZhbG0ucHZtOiAxNS41LjIwMDkKUmVraXN0ZXJpbm86IExUSS01MDkgTW9vdHRvcmlubzoKTWVya2tpIGphIG1hbGxpOiBIT05EQSBDUi1WIDIuMDEgRVMgQVdEIDVEQSBWYWxtaXN0ZW51bWVybzoKRW5zaXJlay5wdm06IDE0LjUuMjAwNCBUZWhkYXN0eXlwcGk6Ck1pdHRhcmlsdWtlbWE6Ck5pbWlrZS9UecO2c2VsaXRlL0tvb2RpIEtwbCBBLWhpbnRhIEFMViAwJQoKU2l2dTogMQoKNjY1MTcxNjMKCjE1LjUuMjAwOSAoMSkKMDQwMDg4NzkwMAoKTFRJLTUwOQoKMTUuNS4yMDA5Cgo3IHB2CktvcmtvbGFpbiBtdWthYW4KMTUuNS4yMDA5CgpLMjBBNDMwMTU1MzIKU0hTUkQ4ODYwNFUyMTU1MTMKUkQ4ODY0RTI2CgoxMDA3NDUKCkEtaGludGEgU3VtbWEgQUxWCjAlCgpBTFYgU3VtbWEgKikKCj0g4oCULS7igJRuMTExMTExczMyMzMyMzNyLS1DQy3igJQKCk9CRCBFSSBNRU5OWVQgTMOEUEkgS0FUU0FTVFVLU0VTVEEKCkhEUyBURVNURVJJTEzDhCBURVNUQVVTIDEsMDAgMzIsMjEgMzksMzAgMzIsMjEgNywwOSAzOSwzMApQR00tRkkKRUxELVlLU0lLS8OWIFVVU0lOVEEgMSwwMCAzMCw5NSAzNyw3NiAzMCw5NSA2LDgxIDM3LDc2CkhPMwpERVRFQ1QgVU5JVCBFTEVDVCAxLDAwIDUwLDE3IDYxLDIxIDUwLDE3IDExLDA0IDYxLDIxCjM4MjU1UzVBMDAzCktpaW50ZcOkaGludGFpbmVuIHBha2V0dGkgT0JELVRFU1RJIE9CRC1URVNUSSwgS0FUU0FTVFVTVEFSS0kKT0JELVRFU1RJIDEsMDAgMTQsNzUgMTgsMDAgMTQsNzUgMywyNSAxOCwwMApNVTEKVHnDtmtva29uYWlzdXVkZW4gdsOkbGlzdW1tYSB5aHRlZW5zw6QgMTI4LDA4IDE1NiwyNwpPSUsgRVRVUkVOS0FBTiBTSVMgVkVUT05JVkVMRU4gU1VPSkFLVU1JIFZVT1RBQSA+Pj4KVVVTSVRBQU4gS0lSSVNUWVNQQU5UQQpPSUtFQSBWRVRPLUFLU0VMSU4gU0lTRU1Nw4ROIFNVT0pBS1VNSU4gMSwwMCAyMywyMSAyOCwzMiAyMywyMSA1LDExIDI4LDMyCkhPMwpQQU5UQVMgMSwwMCA5LDEzIDExLDE0IDksMTMgMiwwMSAxMSwxNAo0NDMyOVNWNDMwNQpUecO2a29rb25haXN1dWRlbiB2w6RsaXN1bW1hIHlodGVlbnPDpCAzMiwzNCAzOSw0NgpsYXVyaS5oZWlza2FuZW5AaWtpLmZpClR5w7Zrb2tvbmFpc3V1ZGVuIHbDpGxpc3VtbWEgeWh0ZWVuc8OkIDAsMDAgMCwwMApQSUVOVEFSVklLS0VFVCA2LDU3IDEsNDUgOCwwMgoxIFZlcm9sbGluZW4gMjIgJSBWZXJvbiBwZXJ1c3RlOiAxNjcsMDEgK0FMViAyMiwwMCAlIDM2LDc0ID0gMjAzLDc1ClRlaXTDpCBwYWx2ZWxpOiBIRUlOTyBKQVJLS08gUC4gMDEwIDU2OSAzMjQzCllodGVlbnPDpDogMjAzLDc1IEVVUgpWZWhvIEF1dG90YWxvdCBPeSBLdXRvbW90aWUgUGFua2tpeWh0ZXlzIFB1aGVsaW4gQWx2LXR1bm5pc3RlCkt1dG9tb3RpZSAxIEEgTm9yZGVhIDE1OTYzMC02MTU3IDAxMCA1NjkgNjI0IEZJMTYzMzM4NTQKMDAzODAgSGVsc2lua2kgUG9oam9sYSA1MDAwMDEtMjAyMTI5MTQgS290aXBhaWtrYSBZLXR1bm51cwpWZWhvIEF1dG90YWxvdCBPeSBTYW1wbyA4MDAwMTQtNzA3ODA1MTIgSGVsc2lua2kgMTYzMzM4NS00Cgp2ZWhvd2ViQHZlaG8uZmkKCnd3dy52ZWhvLmZpCg==",
+        "text_length": 1808,
+        "pages_processed": 1
+      },
+      "duration_ms": 2794
+    },
+    {
+      "step_name": "parsing",
+      "step_number": 2,
+      "timestamp": "2025-09-03T20:28:19.495235",
+      "method": "pattern_matching",
+      "config": {
+        "patterns_version": "1.0.0"
+      },
+      "extracted_fields": {
+        "date": "2009-05-15",
+        "amount": 203.75,
+        "vat_amount": 36.74,
+        "invoice_number": "66517163",
+        "odometer_km": 100745,
+        "company": "Veho Autotalot Oy"
+      },
+      "missing_fields": [],
+      "duration_ms": 0
+    }
+  ],
+  "metadata": {
+    "source_file": "Scan_2025-09-02_12-31-57-1690001.pdf",
+    "file_hash": "sha256:95c14241b8bb951377b073cba22ac34c7142ff186a45aa5987b555d89cc4b1dc",
+    "processed_at": "2025-09-03T20:28:16.700224",
+    "pipeline_version": "1.0.0",
+    "field_sources": {
+      "date": "parsing",
+      "amount": "parsing",
+      "vat_amount": "parsing",
+      "invoice_number": "parsing",
+      "odometer_km": "parsing",
+      "company": "parsing",
+      "work_description": "parsing"
+    },
+    "total_duration_ms": 2794
+  }
+}

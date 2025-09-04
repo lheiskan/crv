@@ -425,5 +425,242 @@ def main():
     return 0
 
 
+class LLMExtractor:
+    """LLM-based receipt extraction using LLAMA3.2 via REST API."""
+    
+    def __init__(self, api_url="http://localhost:11434/api/generate", model="llama3.2"):
+        self.api_url = api_url
+        self.model = model
+    
+    def extract_from_text(self, ocr_text: str) -> Dict[str, Any]:
+        """Extract receipt data using LLM from OCR text."""
+        import requests
+        
+        start_time = time.time()
+        
+        try:
+            prompt = self._create_extraction_prompt(ocr_text)
+            
+            # Call LLAMA3.2 via REST API
+            payload = {
+                "model": self.model,
+                "prompt": prompt,
+                "stream": False,
+                "format": "json"
+            }
+            
+            response = requests.post(self.api_url, json=payload, timeout=60)
+            response.raise_for_status()
+            
+            # Parse LLM response
+            llm_response = response.json()
+            response_text = llm_response.get("response", "")
+            
+            # Parse JSON from LLM response
+            extracted_data = json.loads(response_text)
+            
+            duration_ms = int((time.time() - start_time) * 1000)
+            
+            return {
+                "extracted_fields": extracted_data,
+                "missing_fields": [],  # TODO: implement field validation
+                "duration_ms": duration_ms,
+                "raw_response": response_text
+            }
+            
+        except Exception as e:
+            duration_ms = int((time.time() - start_time) * 1000)
+            return {
+                "extracted_fields": {},
+                "missing_fields": ["error"],
+                "duration_ms": duration_ms,
+                "error": str(e)
+            }
+    
+    def _create_extraction_prompt(self, ocr_text: str) -> str:
+        """Create Finnish receipt extraction prompt for LLM."""
+        return f"""You are a Finnish car service receipt data extractor. Extract the following information from this OCR text and return ONLY valid JSON:
+
+Required fields to extract:
+- date: Service date in YYYY-MM-DD format
+- amount: Total amount as float (convert from EUR)
+- vat_amount: VAT amount as float if present
+- odometer_km: Odometer reading in kilometers as integer
+- company: Service provider company name
+- invoice_number: Invoice/receipt number
+
+Finnish terms to recognize:
+- Laskunro/Laskun numero = Invoice number
+- Päivämäärä/Laskupvm = Date
+- Yhteensä/MAKSETTAVA YHTEENSÄ = Total amount
+- ALV = VAT
+- Mittarilukema = Odometer reading
+- EUR/€ = Currency
+
+OCR Text:
+{ocr_text}
+
+Return only JSON in this exact format:
+{{
+    "date": "YYYY-MM-DD",
+    "amount": 123.45,
+    "vat_amount": 23.45,
+    "odometer_km": 123456,
+    "company": "Company Name",
+    "invoice_number": "123456"
+}}"""
+
+
+def test_llm_extraction():
+    """Self-contained unit test for LLM extractor using sample OCR data."""
+    
+    # Sample OCR text from Scan_2025-09-02_12-31-57-1690001.pdf (Veho receipt from 2009)
+    SAMPLE_OCR_TEXT = """e AUTOTALOT»
+
+KÄTEISLASKU
+Asiakas: 1822750
+Laskun numero:
+HEISKANEN LAURI Päivämäärä:
+N Viitteenne:
+RAJAMAENTIE 25 Viitteemme:
+04200 KERAVA Toimituspäivä:
+SUOMI Maksuehdot:
+Eräpäivä:
+Huomautusaika:
+Viivästyskorko:
+Työmääräysnumero: 147454 Korjauspvm:
+Työn valm.pvm: 15.5.2009
+Rekisterino: LTI-509 Moottorino:
+Merkki ja malli: HONDA CR-V 2.01 ES AWD 5DA Valmistenumero:
+Ensirek.pvm: 14.5.2004 Tehdastyyppi:
+Mittarilukema:
+Nimike/Työselite/Koodi Kpl A-hinta ALV 0%
+
+Sivu: 1
+
+66517163
+
+15.5.2009 (1)
+04008879000
+
+LTI-509
+
+15.5.2009
+
+7 pv
+Korkolain mukaan
+15.5.2009
+
+K20A43015532
+SHSRD88604U215513
+RD8864E26
+
+100745
+
+A-hinta Summa ALV
+0%
+
+ALV Summa (*)
+
+= —-.—n111111s3233233r--CC-—
+
+OBD EI MENNYT LÄPI KATSASTUKSESTA
+
+HDS TESTERILLÄ TESTAUS 1,00 32,21 39,30 32,21 7,09 39,30
+PGM-FI
+ELD-YKSIKKÖ UUSINTA 1,00 30,95 37,76 30,95 6,81 37,76
+HO3
+DETECT UNIT ELECT 1,00 50,17 61,21 50,17 11,04 61,21
+38255S5A003
+Kiinteähintainen paketti OBD-TESTI OBD-TESTI, KATSASTUSTARKKI
+OBD-TESTI 1,00 14,75 18,00 14,75 3,25 18,00
+MU1
+Työkokonaisuuden välisumma yhteensä 128,08 156,27
+OIK ETURENKAANSIS VETONIVELEN SUOJAKUMI VUOTAA >>>
+UUSITAAN KIRISTYSRANTA
+OIKEA VETO-AKSELIN SISEMMÄN SUOJAKUMIN 1,00 23,21 28,32 23,21 5,11 28,32
+HO3
+PANTAS 1,00 9,13 11,14 9,13 2,01 11,14
+44329SV4305
+Työkokonaisuuden välisumma yhteensä 32,34 39,46
+lauri.heiskanen@iki.fi
+Työkokonaisuuden välisumma yhteensä 0,00 0,00
+PIENTARVIKKEET 6,57 1,45 8,02
+1 Verollinen 22 % Veron peruste: 167,01 +ALV 22,00 % 36,74 = 203,75
+Teitä palveli: HEINO JARKKO P. 010 569 3243
+Yhteensä: 203,75 EUR
+Veho Autotalot Oy Kutomotie Pankkiyhteys Puhelin Alv-tunniste
+Kutomotie 1 A Nordea 159630-6157 010 569 624 FI16333854
+00380 Helsinki Pohjola 5000001-20212914 Kotipaikka Y-tunnus
+Veho Autotalot Oy Sampo 8000014-70780512 Helsinki 1633385-4
+
+vehoweb@veho.fi
+
+www.veho.fi"""
+
+    # Expected ground truth for comparison
+    EXPECTED_RESULT = {
+        "date": "2009-05-15",
+        "amount": 203.75,
+        "vat_amount": 36.74,
+        "odometer_km": 100745,
+        "company": "Veho Autotalot Oy",
+        "invoice_number": "66517163"
+    }
+    
+    print("🧪 Testing LLM Extraction")
+    print("=" * 50)
+    
+    try:
+        extractor = LLMExtractor()
+        result = extractor.extract_from_text(SAMPLE_OCR_TEXT)
+        
+        if "error" in result:
+            print(f"❌ LLM Extraction failed: {result['error']}")
+            return False
+        
+        extracted = result.get("extracted_fields", {})
+        duration = result.get("duration_ms", 0)
+        
+        print(f"⏱️  Processing time: {duration}ms")
+        print(f"📄 Extracted fields:")
+        
+        # Compare results
+        correct_fields = 0
+        total_fields = len(EXPECTED_RESULT)
+        
+        for field, expected in EXPECTED_RESULT.items():
+            actual = extracted.get(field)
+            is_correct = actual == expected
+            status = "✅" if is_correct else "❌"
+            
+            print(f"  {status} {field}: {actual} (expected: {expected})")
+            
+            if is_correct:
+                correct_fields += 1
+        
+        accuracy = (correct_fields / total_fields) * 100
+        print(f"\n📊 Accuracy: {correct_fields}/{total_fields} fields correct ({accuracy:.1f}%)")
+        
+        if accuracy >= 80:
+            print("🎉 Test PASSED - LLM extraction working well!")
+            return True
+        else:
+            print("⚠️  Test FAILED - Low accuracy, needs prompt improvement")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Test failed with exception: {e}")
+        return False
+
+
 if __name__ == "__main__":
+    import sys
+    
+    # Check for test flag
+    if len(sys.argv) > 1 and sys.argv[1] == "--test-llm":
+        success = test_llm_extraction()
+        exit(0 if success else 1)
+    
+    # Run normal extraction pipeline
     exit(main())

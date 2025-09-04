@@ -22,9 +22,12 @@ from PIL import Image
 class ReceiptExtractor:
     """Main extraction pipeline for processing receipt PDFs."""
     
-    def __init__(self, output_dir: str = "extracted"):
+    def __init__(self, output_dir: str = "extracted", mode: str = "full_pipeline"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
+        
+        # Pipeline configuration
+        self.mode = mode
         
         # Required fields for a complete extraction
         self.required_fields = {"date", "amount", "company"}
@@ -182,24 +185,63 @@ class ReceiptExtractor:
         # Decode OCR text for parsing
         ocr_text = base64.b64decode(ocr_result["output"]["text"]).decode('utf-8')
         
-        # Step 2: Parsing
-        parsing_result = self._run_parsing(ocr_text)
-        result["processing_steps"].append(parsing_result)
+        # Run extraction based on mode
+        final_extracted_fields = {}
+        field_sources = {}
+        
+        if self.mode == "ocr_only":
+            # OCR only - no further processing
+            pass
+            
+        elif self.mode == "pattern_only":
+            # OCR + Pattern matching only
+            parsing_result = self._run_parsing(ocr_text)
+            result["processing_steps"].append(parsing_result)
+            final_extracted_fields = parsing_result["extracted_fields"].copy()
+            field_sources = {field: "parsing" for field in parsing_result["extracted_fields"]}
+            
+        elif self.mode == "llm_only":
+            # OCR + LLM only
+            print(f"  Running LLM extraction only...")
+            llm_result = self._run_llm_extraction(ocr_text)
+            result["processing_steps"].append(llm_result)
+            final_extracted_fields = llm_result.get("extracted_fields", {})
+            field_sources = {field: "llm" for field in final_extracted_fields}
+            
+        else:
+            # Full pipeline: OCR + Pattern + LLM fallback
+            parsing_result = self._run_parsing(ocr_text)
+            result["processing_steps"].append(parsing_result)
+            final_extracted_fields = parsing_result["extracted_fields"].copy()
+            field_sources = {field: "parsing" for field in parsing_result["extracted_fields"]}
+            
+            # LLM fallback for missing fields
+            missing_required = self.required_fields - set(final_extracted_fields.keys())
+            if missing_required:
+                print(f"  Pattern parsing missed {len(missing_required)} required fields: {', '.join(missing_required)}")
+                print(f"  Running LLM extraction as fallback...")
+                
+                llm_result = self._run_llm_extraction(ocr_text)
+                result["processing_steps"].append(llm_result)
+                
+                llm_fields = llm_result.get("extracted_fields", {})
+                for field in missing_required:
+                    if field in llm_fields and llm_fields[field] is not None:
+                        final_extracted_fields[field] = llm_fields[field]
+                        field_sources[field] = "llm"
+                        print(f"    ✅ LLM found missing field '{field}': {llm_fields[field]}")
         
         # Merge extracted fields into final_data
-        result["final_data"] = parsing_result["extracted_fields"].copy()
+        result["final_data"] = final_extracted_fields
         
         # Add work descriptions if not empty
         work_desc = self.extract_work_description(ocr_text)
         if work_desc:
             result["final_data"]["work_description"] = work_desc
+            field_sources["work_description"] = "parsing"
         
         # Track field sources
-        result["metadata"]["field_sources"] = {
-            field: "parsing" for field in parsing_result["extracted_fields"]
-        }
-        if work_desc:
-            result["metadata"]["field_sources"]["work_description"] = "parsing"
+        result["metadata"]["field_sources"] = field_sources
         
         # Calculate total duration
         total_duration = sum(step.get("duration_ms", 0) for step in result["processing_steps"])
@@ -287,6 +329,46 @@ class ReceiptExtractor:
         extracted_keys = set(step["extracted_fields"].keys())
         missing_required = self.required_fields - extracted_keys
         step["missing_fields"] = list(missing_required)
+        
+        step["duration_ms"] = int((time.time() - start_time) * 1000)
+        return step
+    
+    def _run_llm_extraction(self, ocr_text: str) -> Dict[str, Any]:
+        """Run LLM-based extraction on OCR text."""
+        start_time = time.time()
+        
+        step = {
+            "step_name": "llm_extraction",
+            "step_number": 3,
+            "timestamp": datetime.now().isoformat(),
+            "method": "llama3.2",
+            "config": {
+                "model": "llama3.2",
+                "api_url": "http://localhost:11434/api/generate"
+            },
+            "extracted_fields": {},
+            "missing_fields": []
+        }
+        
+        try:
+            llm_extractor = LLMExtractor()
+            result = llm_extractor.extract_from_text(ocr_text)
+            
+            if "error" in result:
+                step["error"] = result["error"]
+            else:
+                step["extracted_fields"] = result.get("extracted_fields", {})
+                
+                # Check for missing required fields
+                extracted_keys = set(step["extracted_fields"].keys())
+                missing_required = self.required_fields - extracted_keys
+                step["missing_fields"] = list(missing_required)
+                
+                if "raw_response" in result:
+                    step["raw_response"] = result["raw_response"]
+        
+        except Exception as e:
+            step["error"] = str(e)
         
         step["duration_ms"] = int((time.time() - start_time) * 1000)
         return step
@@ -393,10 +475,28 @@ def main():
         default="extracted",
         help="Output directory (default: extracted/)"
     )
+    # Exclusive mode flags
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument("--ocr-only", action="store_true",
+                           help="Run OCR extraction only")
+    mode_group.add_argument("--pattern-only", action="store_true",
+                           help="Run OCR + pattern extraction only")
+    mode_group.add_argument("--llm-only", action="store_true",
+                           help="Run OCR + LLM extraction only")
     
     args = parser.parse_args()
     
-    extractor = ReceiptExtractor(output_dir=args.output)
+    # Configure pipeline based on mode
+    if args.ocr_only:
+        mode = "ocr_only"
+    elif args.pattern_only:
+        mode = "pattern_only" 
+    elif args.llm_only:
+        mode = "llm_only"
+    else:
+        mode = "full_pipeline"
+    
+    extractor = ReceiptExtractor(output_dir=args.output, mode=mode)
     
     input_path = Path(args.input)
     if input_path.is_file() and input_path.suffix.lower() == ".pdf":

@@ -694,34 +694,34 @@ class ServiceHistorySiteManager:
                 </details>
             </div>"""
             
+            
+            # Generate verified data section with proper formatting
             html_content += """
             <div class="verified-data">
                 <h2>Verified Service Data</h2>
-                <div class="field-grid">
-                    <div class="field-item{' field-overridden' if 'date' in overridden_fields else ''}">
-                        <label>Date:{' <span class="override-badge">Fixed</span>' if 'date' in overridden_fields else ''}</label>
-                        <span>{service.get('date', 'N/A')}</span>
-                    </div>
-                    <div class="field-item{' field-overridden' if 'company' in overridden_fields else ''}">
-                        <label>Company:{' <span class="override-badge">Fixed</span>' if 'company' in overridden_fields else ''}</label>
-                        <span>{service.get('company', 'N/A')}</span>
-                    </div>
-                    <div class="field-item{' field-overridden' if 'amount' in overridden_fields else ''}">
-                        <label>Amount:{' <span class="override-badge">Fixed</span>' if 'amount' in overridden_fields else ''}</label>
-                        <span>{f"€{service.get('amount'):,.2f}" if service.get('amount') else "N/A"}</span>
-                    </div>
-                    <div class="field-item{' field-overridden' if 'vat_amount' in overridden_fields else ''}">
-                        <label>VAT Amount:{' <span class="override-badge">Fixed</span>' if 'vat_amount' in overridden_fields else ''}</label>
-                        <span>{f"€{service.get('vat_amount'):,.2f}" if service.get('vat_amount') else "N/A"}</span>
-                    </div>
-                    <div class="field-item{' field-overridden' if 'odometer_km' in overridden_fields else ''}">
-                        <label>Odometer:{' <span class="override-badge">Fixed</span>' if 'odometer_km' in overridden_fields else ''}</label>
-                        <span>{f"{service.get('odometer_km'):,} km" if service.get('odometer_km') else "N/A"}</span>
-                    </div>
-                    <div class="field-item{' field-overridden' if 'invoice_number' in overridden_fields else ''}">
-                        <label>Invoice Number:{' <span class="override-badge">Fixed</span>' if 'invoice_number' in overridden_fields else ''}</label>
-                        <span>{service.get('invoice_number', 'N/A')}</span>
-                    </div>
+                <div class="field-grid">"""
+            
+            # Generate each field with proper conditional formatting
+            fields = [
+                ('Date', 'date', service.get('date', 'N/A')),
+                ('Company', 'company', service.get('company', 'N/A')),
+                ('Amount', 'amount', f"€{service.get('amount'):,.2f}" if service.get('amount') else "N/A"),
+                ('VAT Amount', 'vat_amount', f"€{service.get('vat_amount'):,.2f}" if service.get('vat_amount') else "N/A"),
+                ('Odometer', 'odometer_km', f"{service.get('odometer_km'):,} km" if service.get('odometer_km') else "N/A"),
+                ('Invoice Number', 'invoice_number', service.get('invoice_number', 'N/A'))
+            ]
+            
+            for field_label, field_key, field_value in fields:
+                field_class = ' field-overridden' if field_key in overridden_fields else ''
+                override_badge = ' <span class="override-badge">Fixed</span>' if field_key in overridden_fields else ''
+                
+                html_content += f"""
+                    <div class="field-item{field_class}">
+                        <label>{field_label}:{override_badge}</label>
+                        <span>{field_value}</span>
+                    </div>"""
+            
+            html_content += """
                 </div>
             </div>
 """

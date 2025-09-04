@@ -482,7 +482,7 @@ class LLMExtractor:
         return f"""You are a Finnish car service receipt data extractor. Extract the following information from this OCR text and return ONLY valid JSON:
 
 Required fields to extract:
-- date: Service date in YYYY-MM-DD format
+- date: Service date in YYYY-MM-DD format (convert from Finnish DD.MM.YYYY)
 - amount: Total amount as float (convert from EUR)
 - vat_amount: VAT amount as float if present
 - odometer_km: Odometer reading in kilometers as integer
@@ -491,11 +491,27 @@ Required fields to extract:
 
 Finnish terms to recognize:
 - Laskunro/Laskun numero = Invoice number
-- Päivämäärä/Laskupvm = Date
+- Päivämäärä/Laskupvm/Työn valm.pvm = Date
 - Yhteensä/MAKSETTAVA YHTEENSÄ = Total amount
 - ALV = VAT
-- Mittarilukema = Odometer reading
+- Mittarilukema = Odometer reading (look for standalone numbers)
 - EUR/€ = Currency
+
+IMPORTANT EXAMPLES:
+Date conversion:
+- "15.5.2009" → "2009-05-15" 
+- "Työn valm.pvm: 15.5.2009" → "2009-05-15"
+
+Odometer reading:
+- "Mittarilukema:" followed by number like "100745" → 100745
+- Look for 6-digit numbers that represent kilometers
+
+Amount extraction:
+- "Yhteensä: 203,75 EUR" → 203.75
+- "+ALV 22,00 % 36,74" → vat_amount: 36.74
+
+Company names:
+- Look for company names like "Veho Autotalot Oy", "Järvenpään Automajor"
 
 OCR Text:
 {ocr_text}

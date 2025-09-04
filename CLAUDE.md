@@ -214,14 +214,43 @@ Successfully extract from Finnish receipts:
 - ✅ **Complete Dataset**: All 40 receipts manually verified
 - ✅ **Quality Control**: Manual review using verify_receipts.sh tool
 - ✅ **Ready for Testing**: Full ground truth dataset available
-- 📊 **Coverage**: Multiple companies (Järvenpään Automajor, Veho, Sulan Katsastus)
-- 📊 **Time Range**: 2009-2025 receipts spanning 16 years
+- 📊 **Coverage**: Multiple companies (Järvenpään Automajor, Veho, Sulan Katsastus, Euromaster, LänsiAuto, A-Katsastus)
+- 📊 **Time Range**: 2007-2025 receipts spanning 18 years
+- ✅ **Override Support**: Manual corrections via override.json files
+
+### Static Site Generator (2025-09-04)
+- ✅ **site.py**: Complete static site generator with analytics
+- ✅ **Interactive Dashboard**: Service history with charts and statistics
+- ✅ **Analytics**: Annual maintenance costs, mileage tracking, fuel cost estimates
+- ✅ **Override Mechanism**: Support for manual data corrections with visual indicators
+- 📊 **Features**:
+  - Date-based PDF renaming while preserving original filenames
+  - Responsive design with mobile support
+  - Interactive charts (Chart.js) with moving averages
+  - PDF viewer integration with extraction details
+  - Sortable service history table
+  - Visual indicators for manually corrected data (🔧 icon)
+
+### Override System
+When data needs manual correction, create `override.json` in verified/<receipt>/:
+```json
+{
+  "ground_truth": {
+    "field_to_fix": "corrected_value"
+  },
+  "reason": "Optional explanation"
+}
+```
+- Only include fields that need correction
+- Rebuilds automatically apply overrides
+- Visual indicators show corrected receipts
+- Detail pages show original → corrected values
 
 ### Current Testing Status
-- **Dataset Size**: 40 receipts with verified.json ground truth
+- **Dataset Size**: 39 valid receipts (1 with JSON syntax error)
 - **Verification Tool**: Interactive workflow with nvim + PDF viewer
 - **Test Framework**: Comprehensive validation against ground truth
-- **Next Phase**: Pattern accuracy validation and improvement
+- **Site Generation**: Fully functional with analytics and override support
 
 ## Next Steps (Priority Order)
 
@@ -248,10 +277,35 @@ python test_extraction_validation.py
 3. **Pattern Auto-tuning**: Use test results to improve patterns
 4. **Production Pipeline**: Automated processing workflow
 
+## Site Commands
+
+### Generate and View Service History Site
+```bash
+# Activate virtual environment
+source venv/bin/activate
+
+# Validate data
+python site.py validate
+
+# Build the static site
+python site.py build
+
+# Serve locally
+python site.py serve --port 8080
+
+# Open in browser
+open http://localhost:8080
+
+# Clean and rebuild
+python site.py clean
+python site.py build --force
+```
+
 ---
 
 **Last Updated**: 2025-09-04
-**Dataset Version**: 1.0.0 (40 receipts fully verified)
+**Dataset Version**: 1.1.0 (39 receipts verified with override support)
+**Site Version**: 1.0.0 (Full analytics dashboard with override mechanism)
 **Pipeline Version**: 1.0.0
 
 *Remember: Always use `source venv/bin/activate` before running any Python commands!*

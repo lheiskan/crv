@@ -488,8 +488,8 @@ class ServiceHistorySiteManager:
         
         # Add service rows
         for service in reversed(self.service_data):  # Most recent first
-            odometer = f"{service.get('odometer_km', 'N/A'):,} km" if service.get('odometer_km') else "N/A"
-            amount = f"€{service.get('amount', 0):,.2f}" if service.get('amount') else "€0.00"
+            odometer = f"{service.get('odometer_km'):,} km" if service.get('odometer_km') else "N/A"
+            amount = f"€{service.get('amount'):,.2f}" if service.get('amount') else "N/A"
             invoice = service.get('invoice_number', 'N/A')
             
             html_content += f"""
@@ -583,15 +583,15 @@ class ServiceHistorySiteManager:
                     </div>
                     <div class="field-item">
                         <label>Amount:</label>
-                        <span>€{service.get('amount', 0):,.2f}</span>
+                        <span>{f"€{service.get('amount'):,.2f}" if service.get('amount') else "N/A"}</span>
                     </div>
                     <div class="field-item">
                         <label>VAT Amount:</label>
-                        <span>€{service.get('vat_amount', 0):,.2f}</span>
+                        <span>{f"€{service.get('vat_amount'):,.2f}" if service.get('vat_amount') else "N/A"}</span>
                     </div>
                     <div class="field-item">
                         <label>Odometer:</label>
-                        <span>{service.get('odometer_km', 'N/A'):,} km</span>
+                        <span>{f"{service.get('odometer_km'):,} km" if service.get('odometer_km') else "N/A"}</span>
                     </div>
                     <div class="field-item">
                         <label>Invoice Number:</label>

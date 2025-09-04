@@ -32,6 +32,9 @@ class ReceiptExtractor:
         # Required fields for a complete extraction
         self.required_fields = {"date", "amount", "company"}
         
+        # Validation directories
+        self.verified_dir = Path("verified")
+        
         # Finnish receipt patterns
         self.patterns = {
             "date": [
@@ -461,6 +464,194 @@ class ReceiptExtractor:
                     print(f"  - {r['file']}: {r['error']}")
 
 
+    def find_test_cases(self, specific_pdf: str = None) -> List[str]:
+        """Find all PDFs that have both extracted and verified data."""
+        test_cases = []
+        
+        if not self.verified_dir.exists():
+            return test_cases
+        
+        for verified_pdf_dir in self.verified_dir.iterdir():
+            if verified_pdf_dir.is_dir():
+                pdf_name = verified_pdf_dir.name
+                
+                # If specific PDF requested, only include that one
+                if specific_pdf and specific_pdf != pdf_name:
+                    continue
+                
+                verified_json = verified_pdf_dir / "verified.json"
+                extracted_json = self.output_dir / pdf_name / "data.json"
+                
+                if verified_json.exists() and extracted_json.exists():
+                    test_cases.append(pdf_name)
+        
+        return test_cases
+    
+    def compare_values(self, extracted_value, ground_truth_value) -> bool:
+        """Compare two values - exact comparison only."""
+        return extracted_value == ground_truth_value
+    
+    def validate_step(self, step_name: str, extracted_data: dict, ground_truth: dict, step_config: dict):
+        """Validate a single extraction step against ground truth."""
+        errors = []
+        warnings = []
+        info_messages = []
+        
+        required_fields = step_config.get("required_fields", [])
+        warning_fields = step_config.get("warning_if_missing", [])
+        optional_fields = step_config.get("optional_fields", [])
+        
+        # Check required fields
+        for field in required_fields:
+            if field not in extracted_data:
+                errors.append(f"{step_name}: REQUIRED field '{field}' not found")
+            elif field in ground_truth:
+                if not self.compare_values(extracted_data[field], ground_truth[field]):
+                    errors.append(
+                        f"{step_name}: REQUIRED field '{field}' incorrect - "
+                        f"got {extracted_data[field]}, expected {ground_truth[field]}"
+                    )
+        
+        # Check warning fields
+        for field in warning_fields:
+            if field not in extracted_data:
+                warnings.append(f"{step_name}: WARNING field '{field}' not found")
+            elif field in ground_truth:
+                if not self.compare_values(extracted_data[field], ground_truth[field]):
+                    errors.append(
+                        f"{step_name}: WARNING field '{field}' has incorrect value - "
+                        f"got {extracted_data[field]}, expected {ground_truth[field]}"
+                    )
+        
+        # Check optional fields
+        for field in optional_fields:
+            if field not in extracted_data:
+                info_messages.append(f"{step_name}: Optional field '{field}' not found")
+            elif field in ground_truth:
+                if not self.compare_values(extracted_data[field], ground_truth[field]):
+                    errors.append(
+                        f"{step_name}: Optional field '{field}' has incorrect value - "
+                        f"got {extracted_data[field]}, expected {ground_truth[field]}"
+                    )
+        
+        return errors, warnings, info_messages
+    
+    def run_validation(self, specific_pdf: str = None):
+        """Run validation against ground truth data."""
+        test_cases = self.find_test_cases(specific_pdf)
+        
+        if not test_cases:
+            if specific_pdf:
+                print(f"❌ No validation data found for '{specific_pdf}'")
+                print("   Make sure verified/{specific_pdf}/verified.json exists")
+            else:
+                print("❌ No validation data found")
+                print("   No PDFs with both extracted and verified data")
+            return False
+        
+        print(f"🧪 Running validation on {len(test_cases)} receipt(s)...")
+        print("=" * 60)
+        
+        all_errors = []
+        all_warnings = []
+        all_info = []
+        
+        for pdf_name in test_cases:
+            # Load data
+            with open(self.output_dir / pdf_name / "data.json", 'r', encoding='utf-8') as f:
+                extracted_json = json.load(f)
+            with open(self.verified_dir / pdf_name / "verified.json", 'r', encoding='utf-8') as f:
+                verified_json = json.load(f)
+            
+            ground_truth = verified_json["ground_truth"]
+            expected_extraction = verified_json["expected_extraction"]
+            
+            print(f"\n📄 Testing: {pdf_name}")
+            print("-" * 40)
+            
+            # Check each processing step that was executed
+            for step in extracted_json.get("processing_steps", []):
+                step_name = step["step_name"]
+                
+                # Skip OCR step (no field validation needed)
+                if step_name == "ocr":
+                    continue
+                
+                # Get extracted fields from this step
+                step_extracted = step.get("extracted_fields", {})
+                
+                # Get expectations for this step
+                if step_name in expected_extraction:
+                    step_config = expected_extraction[step_name]
+                    errors, warnings, info = self.validate_step(
+                        step_name, step_extracted, ground_truth, step_config
+                    )
+                    
+                    all_errors.extend(errors)
+                    all_warnings.extend(warnings)
+                    all_info.extend(info)
+                    
+                    # Print step results
+                    if step_extracted:
+                        print(f"  {step_name}: {list(step_extracted.keys())}")
+                    else:
+                        print(f"  {step_name}: No fields extracted")
+            
+            # Validate the final merged data
+            final_data = extracted_json.get("final_data", {})
+            if "final_data" in expected_extraction:
+                final_config = expected_extraction["final_data"]
+                errors, warnings, info = self.validate_step(
+                    "final_data", final_data, ground_truth, final_config
+                )
+                
+                all_errors.extend(errors)
+                all_warnings.extend(warnings)
+                all_info.extend(info)
+                
+                if final_data:
+                    print(f"  final_data: {list(final_data.keys())}")
+                else:
+                    print(f"  final_data: No final data")
+            
+            # Print validation results for this PDF
+            current_errors = [e for e in all_errors if pdf_name in e or any(x in e for x in ["final_data", "parsing", "llm_extraction"])]
+            current_warnings = [w for w in all_warnings if pdf_name in w or any(x in w for x in ["final_data", "parsing", "llm_extraction"])]
+            current_info = [i for i in all_info if pdf_name in i or any(x in i for x in ["final_data", "parsing", "llm_extraction"])]
+            
+            if not (current_errors or current_warnings or current_info):
+                print("  ✅ All fields correctly extracted!")
+        
+        # Print summary
+        print(f"\n{'=' * 60}")
+        print("📊 VALIDATION SUMMARY")
+        print("=" * 60)
+        print(f"Total PDFs tested: {len(test_cases)}")
+        
+        if all_errors:
+            print(f"\n❌ ERRORS ({len(all_errors)}):")
+            for error in all_errors:
+                print(f"  - {error}")
+        
+        if all_warnings:
+            print(f"\n⚠️  WARNINGS ({len(all_warnings)}):")
+            for warning in all_warnings:
+                print(f"  - {warning}")
+        
+        if all_info:
+            print(f"\nℹ️  INFO ({len(all_info)}):")
+            for info_msg in all_info:
+                print(f"  - {info_msg}")
+        
+        success = len(all_errors) == 0
+        if success:
+            print(f"\n🎉 VALIDATION PASSED - All extractions are accurate!")
+        else:
+            print(f"\n💥 VALIDATION FAILED - {len(all_errors)} errors found")
+        
+        return success
+
+
 def main():
     """Main entry point for the extraction script."""
     parser = argparse.ArgumentParser(description="Extract receipt data from PDFs")
@@ -484,6 +675,10 @@ def main():
     mode_group.add_argument("--llm-only", action="store_true",
                            help="Run OCR + LLM extraction only")
     
+    # Validation flag
+    parser.add_argument("--validate", nargs="?", const="all", metavar="PDF_NAME",
+                       help="Validate extraction results against ground truth (optional: specific PDF name)")
+    
     args = parser.parse_args()
     
     # Configure pipeline based on mode
@@ -497,6 +692,14 @@ def main():
         mode = "full_pipeline"
     
     extractor = ReceiptExtractor(output_dir=args.output, mode=mode)
+    
+    # Handle validation mode
+    if args.validate:
+        if args.validate == "all":
+            success = extractor.run_validation()
+        else:
+            success = extractor.run_validation(specific_pdf=args.validate)
+        return 0 if success else 1
     
     input_path = Path(args.input)
     if input_path.is_file() and input_path.suffix.lower() == ".pdf":

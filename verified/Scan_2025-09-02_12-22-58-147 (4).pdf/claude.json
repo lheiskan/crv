@@ -1,0 +1,27 @@
+{
+  "ground_truth": {
+    "date": "2011-01-13",
+    "amount": 1285.96,
+    "vat_amount": 240.46,
+    "odometer_km": 120521,
+    "company": "Veho Autotalot Oy",
+    "invoice_number": "695028537"
+  },
+  "expected_extraction": {
+    "parsing": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km", "invoice_number"],
+      "optional_fields": ["vat_amount"]
+    },
+    "llm_extraction": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km", "invoice_number"],
+      "optional_fields": ["vat_amount"]
+    },
+    "final_data": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km", "invoice_number"],
+      "optional_fields": ["vat_amount"]
+    }
+  }
+}

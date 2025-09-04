@@ -1,0 +1,27 @@
+{
+  "ground_truth": {
+    "date": "2021-11-15",
+    "amount": 2688.99,
+    "vat_amount": 520.45,
+    "odometer_km": 333772,
+    "company": "LänsiAuto",
+    "invoice_number": "460047575"
+  },
+  "expected_extraction": {
+    "parsing": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km", "invoice_number"],
+      "optional_fields": ["vat_amount"]
+    },
+    "llm_extraction": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km", "invoice_number"],
+      "optional_fields": ["vat_amount"]
+    },
+    "final_data": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km", "invoice_number"],
+      "optional_fields": ["vat_amount"]
+    }
+  }
+}

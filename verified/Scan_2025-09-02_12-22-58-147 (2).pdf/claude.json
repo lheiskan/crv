@@ -1,0 +1,27 @@
+{
+  "ground_truth": {
+    "date": "2004-04-16",
+    "amount": 690.00,
+    "vat_amount": 124.48,
+    "odometer_km": 45469,
+    "company": "First Stop",
+    "invoice_number": null
+  },
+  "expected_extraction": {
+    "parsing": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km"],
+      "optional_fields": ["vat_amount", "invoice_number"]
+    },
+    "llm_extraction": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km"],
+      "optional_fields": ["vat_amount", "invoice_number"]
+    },
+    "final_data": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km"],
+      "optional_fields": ["vat_amount", "invoice_number"]
+    }
+  }
+}

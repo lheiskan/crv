@@ -1,0 +1,27 @@
+{
+  "ground_truth": {
+    "date": "2023-04-26",
+    "amount": 25.00,
+    "vat_amount": 4.84,
+    "odometer_km": null,
+    "company": "Sulan Katsastus Oy",
+    "invoice_number": "1333"
+  },
+  "expected_extraction": {
+    "parsing": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["invoice_number"],
+      "optional_fields": ["vat_amount", "odometer_km"]
+    },
+    "llm_extraction": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["invoice_number"],
+      "optional_fields": ["vat_amount", "odometer_km"]
+    },
+    "final_data": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["invoice_number"],
+      "optional_fields": ["vat_amount", "odometer_km"]
+    }
+  }
+}

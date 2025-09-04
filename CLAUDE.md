@@ -36,6 +36,7 @@ crv/
 ├── verified/                   # Ground truth for testing
 │   └── <pdf_name>/
 │       └── verified.json      # Expected values
+│       └── claude.json        # Unverified expected values from Claude LLM
 └── test_extraction_validation.py # Unit tests
 ```
 
@@ -209,19 +210,48 @@ Successfully extract from Finnish receipts:
 - ✅ Fixed VAT extraction ("+ALV X% Y" pattern)
 - ✅ Added "Oy" suffix to company names
 
-### Testing Status
-- Veho Autotalot receipt: ✅ 100% accuracy (all fields correct)
-- Test framework: ✅ Working (catches extraction errors)
+### Ground Truth Dataset (2025-09-04)
+- ✅ **Complete Dataset**: All 40 receipts manually verified
+- ✅ **Quality Control**: Manual review using verify_receipts.sh tool
+- ✅ **Ready for Testing**: Full ground truth dataset available
+- 📊 **Coverage**: Multiple companies (Järvenpään Automajor, Veho, Sulan Katsastus)
+- 📊 **Time Range**: 2009-2025 receipts spanning 16 years
 
-### Future Enhancements
+### Current Testing Status
+- **Dataset Size**: 40 receipts with verified.json ground truth
+- **Verification Tool**: Interactive workflow with nvim + PDF viewer
+- **Test Framework**: Comprehensive validation against ground truth
+- **Next Phase**: Pattern accuracy validation and improvement
+
+## Next Steps (Priority Order)
+
+### 1. Extraction Pipeline Validation
+```bash
+# Run full test suite against verified data
+source venv/bin/activate
+python test_extraction_validation.py
+```
+
+### 2. Pattern Accuracy Analysis
+- Identify extraction failure patterns
+- Measure field-by-field accuracy rates
+- Prioritize improvements by impact
+
+### 3. Pattern Enhancement
+- Improve regex patterns based on test failures
+- Add support for edge cases found in dataset
+- Validate improvements against full dataset
+
+### 4. Future Enhancements
 1. **LLM Integration**: For receipts where parsing fails
-2. **More Receipt Types**: Add patterns for other service providers
-3. **Batch Processing**: Process multiple receipts efficiently
-4. **Pattern Auto-tuning**: Use test results to improve patterns
+2. **Batch Processing**: Process multiple receipts efficiently
+3. **Pattern Auto-tuning**: Use test results to improve patterns
+4. **Production Pipeline**: Automated processing workflow
 
 ---
 
-**Last Updated**: 2025-09-03
+**Last Updated**: 2025-09-04
+**Dataset Version**: 1.0.0 (40 receipts fully verified)
 **Pipeline Version**: 1.0.0
 
 *Remember: Always use `source venv/bin/activate` before running any Python commands!*

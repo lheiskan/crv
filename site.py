@@ -86,8 +86,8 @@ class ServiceHistorySiteManager:
                 continue
                 
             try:
-                with open(verified_path, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
+                # Use the same loading mechanism to get merged data
+                data = self.load_service_data_with_overrides(pdf_basename)
                     
                 date = data.get("ground_truth", {}).get("date")
                 if not date:
@@ -122,6 +122,49 @@ class ServiceHistorySiteManager:
         for directory in directories:
             os.makedirs(directory, exist_ok=True)
 
+    def load_service_data_with_overrides(self, pdf_basename):
+        """Load verified data and apply overrides if they exist"""
+        verified_path = f"{self.verified_dir}{pdf_basename}/verified.json"
+        
+        with open(verified_path, 'r', encoding='utf-8') as f:
+            verified_data = json.load(f)
+        
+        # Check for override.json
+        override_path = f"{self.verified_dir}{pdf_basename}/override.json"
+        overridden_fields = {}
+        
+        if os.path.exists(override_path):
+            with open(override_path, 'r', encoding='utf-8') as f:
+                override_data = json.load(f)
+            
+            # Store original values and apply overrides
+            original_ground_truth = verified_data["ground_truth"].copy()
+            override_ground_truth = override_data.get("ground_truth", {})
+            
+            for field, new_value in override_ground_truth.items():
+                original_value = original_ground_truth.get(field)
+                if original_value != new_value:
+                    overridden_fields[field] = {
+                        "original": original_value,
+                        "override": new_value
+                    }
+                    verified_data["ground_truth"][field] = new_value
+            
+            # Add override metadata
+            verified_data["override_info"] = {
+                "has_overrides": True,
+                "overridden_fields": overridden_fields,
+                "reason": override_data.get("reason")  # Optional reason
+            }
+        else:
+            verified_data["override_info"] = {
+                "has_overrides": False,
+                "overridden_fields": {},
+                "reason": None
+            }
+        
+        return verified_data
+
     def process_and_rename_files(self):
         """Process files and rename using dates from verified.json"""
         print("📄 Processing and renaming files...")
@@ -131,15 +174,15 @@ class ServiceHistorySiteManager:
         
         for pdf_file in glob.glob(f"{self.receipts_dir}*.pdf"):
             pdf_basename = os.path.basename(pdf_file)
-            verified_path = f"{self.verified_dir}{pdf_basename}/verified.json"
             
             # Skip if no verified.json (already warned in validation)
+            verified_path = f"{self.verified_dir}{pdf_basename}/verified.json"
             if not os.path.exists(verified_path):
                 continue
                 
             try:
-                with open(verified_path, 'r', encoding='utf-8') as f:
-                    verified_data = json.load(f)
+                # Load verified data with overrides applied
+                verified_data = self.load_service_data_with_overrides(pdf_basename)
                     
                 date = verified_data.get("ground_truth", {}).get("date")
                 if not date:
@@ -492,9 +535,15 @@ class ServiceHistorySiteManager:
             amount = f"€{service.get('amount'):,.2f}" if service.get('amount') else "N/A"
             invoice = service.get('invoice_number', 'N/A')
             
+            # Check if this service has overrides
+            override_info = service.get('verified_data', {}).get('override_info', {})
+            has_overrides = override_info.get('has_overrides', False)
+            override_indicator = ' 🔧' if has_overrides else ''
+            row_class = 'clickable-row has-overrides' if has_overrides else 'clickable-row'
+            
             html_content += f"""
-                        <tr onclick="openReceipt('{service['date']}')" class="clickable-row">
-                            <td>{service['date']}</td>
+                        <tr onclick="openReceipt('{service['date']}')" class="{row_class}" title="{'Has manual corrections' if has_overrides else ''}">
+                            <td>{service['date']}{override_indicator}</td>
                             <td>{service.get('company', 'Unknown')}</td>
                             <td>{odometer}</td>
                             <td>{amount}</td>
@@ -541,6 +590,12 @@ class ServiceHistorySiteManager:
             
             extraction_data = service.get('extraction_data', {})
             
+            # Get override information
+            override_info = service.get('verified_data', {}).get('override_info', {})
+            has_overrides = override_info.get('has_overrides', False)
+            overridden_fields = override_info.get('overridden_fields', {})
+            override_reason = override_info.get('reason')
+            
             html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -569,32 +624,61 @@ class ServiceHistorySiteManager:
             </div>
         </div>
 
-        <div class="extraction-details">
+        <div class="extraction-details">"""
+            
+            # Add override banner if there are overrides
+            if has_overrides:
+                override_fields_count = len(overridden_fields)
+                html_content += f"""
+            <div class="override-banner">
+                ⚠️ This receipt contains manually corrected data
+                <details class="override-details">
+                    <summary>View corrections ({override_fields_count} field{'s' if override_fields_count != 1 else ''})</summary>"""
+                
+                if override_reason:
+                    html_content += f"""
+                    <p><strong>Reason:</strong> {override_reason}</p>"""
+                
+                html_content += """
+                    <ul>"""
+                
+                for field, values in overridden_fields.items():
+                    original = values.get('original', 'None')
+                    override = values.get('override', 'None')
+                    html_content += f"""
+                        <li><strong>{field}:</strong> {original} → {override}</li>"""
+                
+                html_content += """
+                    </ul>
+                </details>
+            </div>"""
+            
+            html_content += """
             <div class="verified-data">
                 <h2>Verified Service Data</h2>
                 <div class="field-grid">
-                    <div class="field-item">
-                        <label>Date:</label>
+                    <div class="field-item{' field-overridden' if 'date' in overridden_fields else ''}">
+                        <label>Date:{' <span class="override-badge">Fixed</span>' if 'date' in overridden_fields else ''}</label>
                         <span>{service.get('date', 'N/A')}</span>
                     </div>
-                    <div class="field-item">
-                        <label>Company:</label>
+                    <div class="field-item{' field-overridden' if 'company' in overridden_fields else ''}">
+                        <label>Company:{' <span class="override-badge">Fixed</span>' if 'company' in overridden_fields else ''}</label>
                         <span>{service.get('company', 'N/A')}</span>
                     </div>
-                    <div class="field-item">
-                        <label>Amount:</label>
+                    <div class="field-item{' field-overridden' if 'amount' in overridden_fields else ''}">
+                        <label>Amount:{' <span class="override-badge">Fixed</span>' if 'amount' in overridden_fields else ''}</label>
                         <span>{f"€{service.get('amount'):,.2f}" if service.get('amount') else "N/A"}</span>
                     </div>
-                    <div class="field-item">
-                        <label>VAT Amount:</label>
+                    <div class="field-item{' field-overridden' if 'vat_amount' in overridden_fields else ''}">
+                        <label>VAT Amount:{' <span class="override-badge">Fixed</span>' if 'vat_amount' in overridden_fields else ''}</label>
                         <span>{f"€{service.get('vat_amount'):,.2f}" if service.get('vat_amount') else "N/A"}</span>
                     </div>
-                    <div class="field-item">
-                        <label>Odometer:</label>
+                    <div class="field-item{' field-overridden' if 'odometer_km' in overridden_fields else ''}">
+                        <label>Odometer:{' <span class="override-badge">Fixed</span>' if 'odometer_km' in overridden_fields else ''}</label>
                         <span>{f"{service.get('odometer_km'):,} km" if service.get('odometer_km') else "N/A"}</span>
                     </div>
-                    <div class="field-item">
-                        <label>Invoice Number:</label>
+                    <div class="field-item{' field-overridden' if 'invoice_number' in overridden_fields else ''}">
+                        <label>Invoice Number:{' <span class="override-badge">Fixed</span>' if 'invoice_number' in overridden_fields else ''}</label>
                         <span>{service.get('invoice_number', 'N/A')}</span>
                     </div>
                 </div>
@@ -998,6 +1082,55 @@ body {
     margin-bottom: 0.5rem;
     background: white;
     border-radius: 6px;
+}
+
+/* Override Indicators */
+.has-overrides {
+    border-left: 3px solid #f39c12;
+}
+
+.override-indicator {
+    font-size: 0.9em;
+    margin-left: 4px;
+    opacity: 0.8;
+}
+
+.field-overridden {
+    background-color: #fff3cd;
+    border-left: 3px solid #f39c12;
+}
+
+.override-banner {
+    background: #fff3cd;
+    border: 1px solid #f39c12;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    color: #856404;
+}
+
+.override-banner details {
+    margin-top: 0.5rem;
+}
+
+.override-banner summary {
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.override-banner ul {
+    margin-top: 0.5rem;
+    margin-left: 1rem;
+}
+
+.override-badge {
+    background: #f39c12;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 4px;
+    font-weight: normal;
 }
 
 /* Footer */

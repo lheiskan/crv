@@ -291,14 +291,25 @@ class ServiceHistorySiteManager:
 
     def calculate_maintenance_costs(self, yearly_data):
         """Calculate maintenance cost analytics with moving averages"""
-        yearly_costs = {}
+        # First, determine the full year range
+        if not yearly_data:
+            return {"yearly_costs": {}, "moving_average_3yr": {}}
         
-        # Calculate absolute yearly costs
+        year_keys = [int(year) for year in yearly_data.keys()]
+        start_year = min(year_keys)
+        end_year = max(year_keys)
+        
+        # Initialize all years in range with 0 cost
+        yearly_costs = {}
+        for year in range(start_year, end_year + 1):
+            yearly_costs[str(year)] = 0.0
+        
+        # Fill in actual costs where we have data
         for year, services in yearly_data.items():
             total_cost = sum(s.get('amount', 0) or 0 for s in services)
             yearly_costs[year] = round(total_cost, 2)
         
-        # Calculate 3-year moving average
+        # Calculate 3-year moving average (including zero years)
         years = sorted(yearly_costs.keys())
         moving_avg = {}
         
@@ -336,6 +347,32 @@ class ServiceHistorySiteManager:
                 self.distribute_km_across_years(
                     previous['date'], current['date'], km_driven, yearly_km
                 )
+        
+        # Fill in missing years with interpolated values
+        if yearly_km:
+            year_keys = [int(year) for year in yearly_km.keys()]
+            start_year = min(year_keys)
+            end_year = max(year_keys)
+            
+            # For missing years, use average of surrounding years or 0
+            for year in range(start_year, end_year + 1):
+                year_str = str(year)
+                if year_str not in yearly_km:
+                    # Find closest years with data
+                    prev_year = next((y for y in range(year-1, start_year-1, -1) if str(y) in yearly_km), None)
+                    next_year = next((y for y in range(year+1, end_year+1) if str(y) in yearly_km), None)
+                    
+                    if prev_year and next_year:
+                        # Average of surrounding years
+                        yearly_km[year_str] = round((yearly_km[str(prev_year)] + yearly_km[str(next_year)]) / 2, 0)
+                    elif prev_year:
+                        # Use previous year's value
+                        yearly_km[year_str] = yearly_km[str(prev_year)]
+                    elif next_year:
+                        # Use next year's value
+                        yearly_km[year_str] = yearly_km[str(next_year)]
+                    else:
+                        yearly_km[year_str] = 0
         
         # Calculate 3-year moving averages
         years = sorted(yearly_km.keys())
@@ -383,10 +420,14 @@ class ServiceHistorySiteManager:
         
         for year, km in mileage_data["yearly"].items():
             year_int = int(year)
-            if year_int in self.fuel_prices_finland and km > 0:
-                liters_consumed = (km * self.consumption_l_per_100km) / 100
-                estimated_cost = liters_consumed * self.fuel_prices_finland[year_int]
-                fuel_costs[year] = round(estimated_cost, 2)
+            # Include all years, even with 0 cost if no mileage
+            if year_int in self.fuel_prices_finland:
+                if km > 0:
+                    liters_consumed = (km * self.consumption_l_per_100km) / 100
+                    estimated_cost = liters_consumed * self.fuel_prices_finland[year_int]
+                    fuel_costs[year] = round(estimated_cost, 2)
+                else:
+                    fuel_costs[year] = 0.0  # Include zero-cost years
         
         return fuel_costs
 

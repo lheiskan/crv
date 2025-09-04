@@ -48,6 +48,10 @@ This project processes car service receipts (primarily Finnish) to create a comp
    python extract.py --pattern-only receipts/receipt.pdf # Pattern matching only
    python extract.py --test-llm                          # Test LLM extractor
    
+   # Validate extraction accuracy
+   python extract.py --validate                          # Validate all receipts
+   python extract.py --validate receipt.pdf              # Validate specific receipt
+   
    # Verify and correct data interactively
    ./verify_receipts.sh
    ```
@@ -79,7 +83,7 @@ crv/
 │   ├── receipts/       # Individual receipt pages
 │   ├── pdfs/           # Renamed PDF files
 │   └── data/           # JSON data and analytics
-├── extract.py          # Main extraction script
+├── extract.py          # Main extraction script with integrated validation
 ├── site.py            # Static site generator
 └── verify_receipts.sh # Interactive verification tool
 ```
@@ -91,8 +95,8 @@ The system uses a multi-stage intelligent extraction pipeline:
 1. **OCR Processing**: Extract text from PDFs using Tesseract with Finnish language support
 2. **Pattern Matching**: Fast regex-based extraction for known receipt formats (~60% success, <1ms)
 3. **LLM Fallback**: LLAMA3.2 processes receipts when pattern matching fails (~100% success, ~6-8s)
-4. **Data Validation**: Check field consistency and completeness
-5. **Manual Verification**: Interactive review and correction workflow
+4. **Data Validation**: Automated validation against ground truth data
+5. **Manual Verification**: Interactive review and correction workflow  
 6. **Override System**: Apply manual corrections with visual indicators
 7. **Site Generation**: Create static HTML dashboard with analytics
 

@@ -28,7 +28,7 @@ This project extracts structured data from Finnish car service receipts (PDFs) u
 ### File Structure
 ```
 crv/
-├── extract.py                  # Main extraction script
+├── extract.py                  # Main extraction script with integrated validation
 ├── receipts/                   # Input PDF files
 ├── extracted/                  # Output directory
 │   └── <pdf_name>/
@@ -38,7 +38,7 @@ crv/
 │   └── <pdf_name>/
 │       └── verified.json      # Expected values
 │       └── claude.json        # Unverified expected values from Claude LLM
-└── test_extraction_validation.py # Unit tests
+└── site.py                     # Static site generator
 ```
 
 ### Data Model (data.json)
@@ -101,6 +101,10 @@ python extract.py --llm-only receipts/receipt.pdf      # OCR + LLM extraction
 
 # Test LLM extractor independently
 python extract.py --test-llm
+
+# Validate extraction accuracy
+python extract.py --validate                    # All receipts  
+python extract.py --validate receipt.pdf        # Specific receipt
 
 # Results saved to extracted/<pdf_name>/
 ```
@@ -170,11 +174,11 @@ mkdir -p verified/receipt.pdf/
 ```bash
 source venv/bin/activate
 
-# Test all verified PDFs
-python test_extraction_validation.py
+# Validate all verified PDFs (integrated into extract.py)
+python extract.py --validate
 
-# Test specific PDF
-python test_extraction_validation.py receipt.pdf
+# Validate specific PDF
+python extract.py --validate receipt.pdf
 ```
 
 ### Test Results

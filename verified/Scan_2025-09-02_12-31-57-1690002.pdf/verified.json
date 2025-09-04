@@ -1,0 +1,27 @@
+{
+  "ground_truth": {
+    "date": "2009-05-18",
+    "amount": 9.00,
+    "vat_amount": 1.62,
+    "odometer_km": null,
+    "company": "A-Katsastus Oy",
+    "invoice_number": "1159909"
+  },
+  "expected_extraction": {
+    "parsing": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["invoice_number"],
+      "optional_fields": ["vat_amount"]
+    },
+    "llm_extraction": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["invoice_number"],
+      "optional_fields": ["vat_amount"]
+    },
+    "final_data": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["invoice_number"],
+      "optional_fields": ["vat_amount"]
+    }
+  }
+}

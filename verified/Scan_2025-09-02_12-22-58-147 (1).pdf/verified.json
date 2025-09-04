@@ -1,0 +1,27 @@
+{
+  "ground_truth": {
+    "date": "2007-04-28",
+    "amount": 30.00,
+    "vat_amount": 5.41,
+    "odometer_km": null,
+    "company": "Euromaster",
+    "invoice_number": 41159
+  },
+  "expected_extraction": {
+    "parsing": {
+      "required_fields": ["date", "company"],
+      "warning_if_missing": ["amount"],
+      "optional_fields": ["vat_amount",  "invoice_number"]
+    },
+    "llm_extraction": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["invoice_number"],
+      "optional_fields": ["vat_amount"]
+    },
+    "final_data": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["invoice_number"],
+      "optional_fields": ["vat_amount"]
+    }
+  }
+}

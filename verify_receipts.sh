@@ -68,10 +68,10 @@ for pdf in receipts/*.pdf; do
     fi
     
     # Try to close the PDF viewer (macOS only)
-    if [ -n "$pdf_pid" ] && command -v osascript >/dev/null 2>&1; then
-        # Close Preview app on macOS
-        osascript -e 'tell application "Preview" to quit' 2>/dev/null || true
-    fi
+#    if [ -n "$pdf_pid" ] && command -v osascript >/dev/null 2>&1; then
+#        # Close Preview app on macOS
+#        osascript -e 'tell application "Preview" to quit' 2>/dev/null || true
+#    fi
     
     echo
 done

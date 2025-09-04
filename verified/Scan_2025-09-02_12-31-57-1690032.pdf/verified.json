@@ -1,0 +1,27 @@
+{
+  "ground_truth": {
+    "date": "2023-05-04",
+    "amount": 850.00,
+    "vat_amount": 164.52,
+    "odometer_km": 252832,
+    "company": "Järvenpään Automajor Oy",
+    "invoice_number": "11245"
+  },
+  "expected_extraction": {
+    "parsing": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km", "invoice_number"],
+      "optional_fields": ["vat_amount"]
+    },
+    "llm_extraction": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km", "invoice_number"],
+      "optional_fields": ["vat_amount"]
+    },
+    "final_data": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": ["odometer_km", "invoice_number"],
+      "optional_fields": ["vat_amount"]
+    }
+  }
+}

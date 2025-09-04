@@ -1,0 +1,27 @@
+{
+  "ground_truth": {
+    "date": "2010-04-16",
+    "amount": 690.00,
+    "vat_amount": 124.43,
+    "odometer_km": null,
+    "company": "First Stop",
+    "invoice_number": null
+  },
+  "expected_extraction": {
+    "parsing": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": [],
+      "optional_fields": ["vat_amount"]
+    },
+    "llm_extraction": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": [],
+      "optional_fields": ["vat_amount"]
+    },
+    "final_data": {
+      "required_fields": ["date", "amount", "company"],
+      "warning_if_missing": [],
+      "optional_fields": ["vat_amount"]
+    }
+  }
+}

@@ -830,11 +830,8 @@ Return only JSON in this exact format:
 }}"""
 
 
-def test_llm_extraction():
-    """Self-contained unit test for LLM extractor using sample OCR data."""
-    
-    # Sample OCR text from Scan_2025-09-02_12-31-57-1690001.pdf (Veho receipt from 2009)
-    SAMPLE_OCR_TEXT = """e AUTOTALOT»
+# Shared test data for both LLM and Pattern extractors
+SAMPLE_OCR_TEXT = """e AUTOTALOT»
 
 KÄTEISLASKU
 Asiakas: 1822750
@@ -917,16 +914,78 @@ vehoweb@veho.fi
 
 www.veho.fi"""
 
-    # Expected ground truth for comparison
-    EXPECTED_RESULT = {
-        "date": "2009-05-15",
-        "amount": 203.75,
-        "vat_amount": 36.74,
-        "odometer_km": 100745,
-        "company": "Veho Autotalot Oy",
-        "invoice_number": "66517163"
-    }
+EXPECTED_RESULT = {
+    "date": "2009-05-15",
+    "amount": 203.75,
+    "vat_amount": 36.74,
+    "odometer_km": 100745,
+    "company": "Veho Autotalot Oy",
+    "invoice_number": "66517163"
+}
+
+
+def test_pattern_extraction():
+    """Test pattern-based extraction using sample OCR data."""
+    print("🧪 Testing Pattern Extraction")
+    print("=" * 50)
     
+    try:
+        # Create extractor instance to access pattern methods
+        extractor = ReceiptExtractor()
+        
+        start_time = time.time()
+        extracted_fields = {}
+        
+        # Try to extract each field using pattern matching
+        for field_name, field_patterns in extractor.patterns.items():
+            field_value = None
+            
+            for pattern, parser in field_patterns:
+                matches = re.search(pattern, SAMPLE_OCR_TEXT, re.IGNORECASE | re.MULTILINE)
+                if matches:
+                    field_value = parser(matches)
+                    if field_value is not None:
+                        break
+            
+            if field_value is not None:
+                extracted_fields[field_name] = field_value
+        
+        duration = int((time.time() - start_time) * 1000)
+        
+        print(f"⏱️  Processing time: {duration}ms")
+        print(f"📄 Extracted fields:")
+        
+        # Compare results
+        correct_fields = 0
+        total_fields = len(EXPECTED_RESULT)
+        
+        for field, expected in EXPECTED_RESULT.items():
+            actual = extracted_fields.get(field)
+            is_correct = actual == expected
+            status = "✅" if is_correct else "❌"
+            
+            print(f"  {status} {field}: {actual} (expected: {expected})")
+            
+            if is_correct:
+                correct_fields += 1
+        
+        accuracy = (correct_fields / total_fields) * 100
+        print(f"\n📊 Accuracy: {correct_fields}/{total_fields} fields correct ({accuracy:.1f}%)")
+        
+        if accuracy >= 80:
+            print("🎉 Test PASSED - Pattern extraction working well!")
+            return True
+        else:
+            print("⚠️  Test FAILED - Low accuracy, needs pattern improvement")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Test failed with exception: {e}")
+        return False
+
+
+def test_llm_extraction():
+    """Test LLM-based extraction using sample OCR data."""
     print("🧪 Testing LLM Extraction")
     print("=" * 50)
     
@@ -976,10 +1035,14 @@ www.veho.fi"""
 if __name__ == "__main__":
     import sys
     
-    # Check for test flag
-    if len(sys.argv) > 1 and sys.argv[1] == "--test-llm":
-        success = test_llm_extraction()
-        exit(0 if success else 1)
+    # Check for test flags
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--test-llm":
+            success = test_llm_extraction()
+            exit(0 if success else 1)
+        elif sys.argv[1] == "--test-pattern":
+            success = test_pattern_extraction()
+            exit(0 if success else 1)
     
     # Run normal extraction pipeline
     exit(main())
